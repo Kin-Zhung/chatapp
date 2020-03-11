@@ -37,6 +37,23 @@ io.on('connection',(socket)=>{
         callback();
     });
 
+
+    socket.on('disconnect', () => {
+        const user = removeUser(socket.id);
+    
+        if(user) {
+          io.to(user.room).emit('message', { user: 'Admin', text: `${user.name} has left.` });
+        }
+        const eventLog= new EventLog({
+            event: 'DISCONNECTION',
+            userName: name,
+            date:  new Date(),
+            room: room
+        });
+        eventLog.save();
+        callback();
+      });
+
     socket.on('sendMessage',(message, callback)=>{
         const user = getUser(socket.id);
         console.log(user);
@@ -51,9 +68,6 @@ io.on('connection',(socket)=>{
         callback();
     });
 
-    socket.on('disconnect',()=>{
-        console.log('user left');
-    });
 });
 
 
