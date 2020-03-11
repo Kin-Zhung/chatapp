@@ -55,7 +55,7 @@ io.on('connection',(socket)=>{
         }
         const eventLog= new EventLog({
             event: 'DISCONNECTION',
-            userName: name,
+            userName: user.name,
             date:  new Date(),
             room: room
         });
