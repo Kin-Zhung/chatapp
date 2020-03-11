@@ -27,6 +27,15 @@ io.on('connection',(socket)=>{
         socket.join(user.room);
         socket.emit('message',{user:'admin',text:`${user.name}, welcome to room ${user.room}`});
         socket.broadcast.to(user.room).emit('message',{user:'admin', text:`${user.name} has joined`});
+
+        Message.find({'chat': user.room})
+        .exec()
+        .then(data =>{
+            for( var x =0; x < data.length; x++){
+                socket.emit('message', {user: data[x].userName,text:data[x].message});
+            }
+        })
+
         const eventLog= new EventLog({
             event: 'CONNECTION',
             userName: name,
@@ -53,6 +62,14 @@ io.on('connection',(socket)=>{
 
     socket.on('disconnect',()=>{
         console.log('user left');
+        const user = getUser(socket.id);
+        const eventLog= new EventLog({
+            event: 'DISCONNECT',
+            userName: user.name,
+            date:  new Date(),
+            room: user.room
+        });
+        eventLog.save();
     });
 });
 
